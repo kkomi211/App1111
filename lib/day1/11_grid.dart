@@ -31,8 +31,11 @@ class MyApp extends StatelessWidget {
           itemBuilder: (context, index){
             return ElevatedButton(
               onPressed: (){},
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.blue[(index+1) % 4 == 0 ? 200 : 0])
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[(index+1) % 4 == 0 ? 200 : 0],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0)
+                )
               ),
               child: Center(child: Text("${labels[index]}", style: TextStyle(fontSize: 20))),
             );
