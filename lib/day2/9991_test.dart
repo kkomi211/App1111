@@ -13,7 +13,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var place = Alignment.center;
-
+  var _txt = "Flutter";
+  var _color = Colors.purple[200];
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,13 +25,17 @@ class _MyAppState extends State<MyApp> {
             setState(() {
               if (place == Alignment.center) {
                 place = Alignment.topCenter;
+                _txt = "재밌다";
+                _color = Colors.blue[100];
               } else {
                 place = Alignment.center;
+                _txt = "Flutter";
+                _color = Colors.purple[200];
               }
             });
           },
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.blue[100]),
-          child: Text("Flutter"),
+          style: ElevatedButton.styleFrom(backgroundColor: _color),
+          child: Text("${_txt}"),
         ),
       ),
     );
