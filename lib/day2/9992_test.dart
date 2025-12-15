@@ -1,77 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(ToDoList());
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class ToDoList extends StatelessWidget {
+  const ToDoList({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-
-    var checkList = [];
-    List<String> list = ["할일이 뭐지"];
-    TextEditingController _todoctrl = TextEditingController();
-
-    void listck(String ls){
-      if(checkList.contains(ls)){
-        checkList.remove(ls);
-      }
-      else{
-        checkList.add(ls);
-      }
-    }
-
     return MaterialApp(
-      home: Scaffold(
+        home : ToDoManager()
+    );
+  }
+}
+
+class ToDoManager extends StatefulWidget {
+  const ToDoManager({super.key});
+
+  @override
+  State<ToDoManager> createState() => _ToDoManagerState();
+}
+
+class _ToDoManagerState extends State<ToDoManager> {
+  TextEditingController txtCtrl = TextEditingController();
+  List<Map<String, Object>> list = [];
+
+  void addToDo(){
+    String title = txtCtrl.text;
+    setState(() {
+      list.add({"title" : title, "isDone" : false});
+      txtCtrl.clear(); // 등록 후 텍스트 필드에서 지우기
+    });
+  }
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text("할 일")),
+          title : Text("할 일"),
+          centerTitle: true,
         ),
-        body: Column(
+        body : Column(
           children: [
-            SizedBox(height: 30),
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  Expanded(child: TextField(
-                    controller: _todoctrl
-                  )),
-                  SizedBox(width: 20),
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      list.add(_todoctrl.text);
-                      _todoctrl.text = "";
-                    });
-                  }, child: Text("추가"))
-                ],
-              ),
+            Row(
+              children: [
+                Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: TextField(
+                        controller: txtCtrl,
+                        decoration: InputDecoration(
+                          hintText: "할 일 입력 하셔",
+                        ),
+                      ),
+                    )
+                ),
+                SizedBox(width: 20,),
+                ElevatedButton(
+                    onPressed: addToDo,
+                    child: Text("추가")
+                )
+              ],
             ),
             Expanded(
-              child: ListView.builder(
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: Checkbox(value: checkList.contains(list[index]), onChanged: (value){
-                      setState(() {
-                        listck(list[index]);
-                        print("ch");
-                      });
-                    }),
-                    title: Text("${list[index]}"),
-                  );
-                },
-              ),
+                child: list.isEmpty
+                    ? Center(child: Text("할 일 없음"),)
+                    : ListView.builder(
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    Map item = list[index];
+                    return ListTile(
+                      title : Text(
+                          item["title"],
+                          style : TextStyle(
+                            decoration: item["isDone"] ? TextDecoration.lineThrough : null,
+                          )
+                      ),
+                      leading: Checkbox(
+                        value: item["isDone"],
+                        onChanged: (value) {
+                          setState(() {
+                            item["isDone"] = value;
+                          });
+                        },
+                      ),
+                      trailing: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              list.removeAt(index);
+                              Fluttertoast.showToast(
+                                  msg: "삭제되었습니다.",
+                                  toastLength: Toast.LENGTH_LONG ,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.grey[200],
+                                  textColor: Colors.black,
+                                  fontSize: 16.0
+                              );
+                            });
+                          },
+                          icon: Icon(Icons.delete)
+                      ),
+                    );
+                  },
+                )
+
             )
           ],
-        ),
-      ),
+        )
     );
   }
 }
