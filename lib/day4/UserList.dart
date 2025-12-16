@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'UserEdit.dart';
 import 'db.dart';
+import 'UserView.dart';
 
 class UserList extends StatefulWidget {
   const UserList({super.key});
@@ -43,6 +44,11 @@ class _UserListState extends State<UserList> {
             return ListTile(
               title : Text("아이디 : ${user["userId"]}, 이름 : ${user["name"]}"),
               subtitle: Text("나이 : ${user["age"]}"),
+              onTap: (){
+                Navigator.push(context, 
+                    MaterialPageRoute(builder: (_)=>UserView(userId: user["userId"]))
+                );
+              },
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
