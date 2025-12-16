@@ -1,48 +1,95 @@
-import 'package:firstproject/day4/UserInsert.dart';
 import 'package:flutter/material.dart';
 import 'UserEdit.dart';
+import 'db.dart';
 
-void main() {
-  runApp(const UserList());
-}
-
-class UserList extends StatelessWidget {
+class UserList extends StatefulWidget {
   const UserList({super.key});
 
   @override
+  State<UserList> createState() => _UserListState();
+}
+
+class _UserListState extends State<UserList> {
+  List<Map<String, dynamic>> list = [];
+
+  Future<void> _selectUserList() async{
+    var userList = await DB.getUserData();
+    setState(() {
+      list = userList;
+    });
+  }
+
+  Future<void> _deleteUserList(int userId) async{
+    int result = await DB.deleteUserData(userId);
+    print(result > 0 ? "삭제성공" : "삭제실패");
+    _selectUserList();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _selectUserList();
+  }
+
+  @override
   Widget build(BuildContext context) {
-
-    List<Map<String, Object>> list = [
-      {"아이디" : "2", "이름" : "123", "나이" : 123},
-      {"아이디" : "3", "이름" : "z", "나이" : 12},
-      {"아이디" : "4", "이름" : "test", "나이" : 12}
-    ];
-
-
     return Scaffold(
-      appBar: AppBar(title: Text("사용자 목록"),),
-      body: ListView.builder(
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text("아이디 : ${list[index]['아이디']}, 이름 : ${list[index]['이름']}"),
-            subtitle: Text("나이 : ${list[index]['나이']}"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(onPressed: (){
-                  Navigator.push(
-                      context, 
-                      MaterialPageRoute(builder: (_)=>UserEdit())
-                  );
-                }, icon: Icon(Icons.edit)),
-                IconButton(onPressed: (){}, icon: Icon(Icons.delete))
-              ],
-            ),
-          );
-        },
-      )
-
+        appBar: AppBar(title : Text("사용자 목록")),
+        body : ListView.builder(
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            var user = list[index];
+            return ListTile(
+              title : Text("아이디 : ${user["userId"]}, 이름 : ${user["name"]}"),
+              subtitle: Text("나이 : ${user["age"]}"),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                      onPressed: () async {
+                        bool flg = await Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => UserEdit(userId: user["userId"]),));
+                        if(flg){
+                          _selectUserList();
+                        }
+                      },
+                      icon: Icon(Icons.edit)
+                  ),
+                  IconButton(
+                      onPressed: (){
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title : Text("삭제"),
+                              content: Text("${user["name"]}님을 정말 삭제 하실거?"),
+                              actions: [
+                                TextButton(
+                                    onPressed: (){
+                                      _deleteUserList(user["userId"]);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("삭제")
+                                ),
+                                TextButton(
+                                    onPressed: (){
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("취소")
+                                )
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      icon: Icon(Icons.delete)
+                  )
+                ],
+              ),
+            );
+          },
+        )
     );
   }
 }
